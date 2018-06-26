@@ -31,8 +31,6 @@ namespace PrismaticTools {
 
             toolsTexture = ModHelper.Content.Load<Texture2D>("Assets/tools.png", ContentSource.ModFolder);
 
-            //helper.ConsoleCommands.Add("crow", "Summon crows", PCrow);
-            
             helper.ConsoleCommands.Add("ptools", "Upgrade all tools to prismatic", UpgradeTools);
 
             SaveEvents.AfterLoad += SaveEvents_AfterLoad;
@@ -42,7 +40,7 @@ namespace PrismaticTools {
             helper.Content.AssetEditors.Add(new AssetEditor());
             SprinklerInitializer.Init();
             BlacksmithInitializer.Init();
-            ToolInitializer.Init();
+            new ToolInitializer().Init();
 
             InitColors();
 

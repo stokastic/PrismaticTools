@@ -27,9 +27,6 @@ namespace PrismaticTools.Framework {
                 asset.AsImage().PatchImage(bar, targetArea: Rektangle(PrismaticBarItem.INDEX));
                 asset.AsImage().PatchImage(sprinkler, targetArea: Rektangle(PrismaticSprinklerItem.INDEX));
             } else if (asset.AssetNameEquals("Data/ObjectInformation")) {
-                foreach (int key in asset.AsDictionary<int, string>().Data.Keys) {
-                    ModEntry.mon.Log($"{key}: {asset.AsDictionary<int, string>().Data[key]}");
-                }
                 asset.AsDictionary<int, string>().Data.Add(PrismaticBarItem.INDEX, $"{PrismaticBarItem.NAME}/{PrismaticBarItem.PRICE}/{PrismaticBarItem.EDIBILITY}/{PrismaticBarItem.TYPE} {PrismaticBarItem.CATEGORY}/{PrismaticBarItem.NAME}/{PrismaticBarItem.DESCRIPTION}");
                 asset.AsDictionary<int, string>().Data.Add(PrismaticSprinklerItem.INDEX, $"{PrismaticSprinklerItem.NAME}/{PrismaticSprinklerItem.PRICE}/{PrismaticSprinklerItem.EDIBILITY}/{PrismaticSprinklerItem.TYPE} {PrismaticSprinklerItem.CATEGORY}/{PrismaticSprinklerItem.NAME}/{PrismaticSprinklerItem.DESCRIPTION}");
             } else if (asset.AssetNameEquals("Data/CraftingRecipes")) {

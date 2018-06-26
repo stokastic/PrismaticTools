@@ -11,30 +11,63 @@ using Netcode;
 namespace PrismaticTools.Framework {
 
     class ToolInitializer {
-        public static void Init() {
+
+        private Vector2 grabTile;
+        private bool mouseIsDown = false;
+
+        public void Init() {
             InputEvents.ButtonPressed += InputEvents_ButtonPressed;
+            //InputEvents.ButtonReleased += InputEvents_ButtonReleased;
+            //GameEvents.EighthUpdateTick += GameEvents_EighthUpdateTick;
         }
 
-        private static void InputEvents_ButtonPressed(object sender, EventArgsInput e) {
+        private void InputEvents_ButtonPressed(object sender, EventArgsInput e) {
             if (!Context.IsWorldReady || e.Button != SButton.MouseLeft) {
                 return;
             }
-            Vector2 tileLocation = e.Cursor.GrabTile;
+
+            mouseIsDown = true;
+            grabTile = e.Cursor.GrabTile;
             Tool tool = Game1.player.CurrentTool;
 
             if (tool is Pickaxe && tool.UpgradeLevel == 5) {
-                if (Game1.currentLocation.Objects.TryGetValue(tileLocation, out Object obj)) {
+                if (Game1.currentLocation.Objects.TryGetValue(grabTile, out Object obj)) {
                     if (obj.Name == "Stone") {
                         obj.MinutesUntilReady = 0;
                     }
                 }
             }
             if (tool is Axe && tool.UpgradeLevel == 5) {
-                if (Game1.currentLocation.terrainFeatures.TryGetValue(tileLocation, out TerrainFeature terrainFeature)) {
+                if (Game1.currentLocation.terrainFeatures.TryGetValue(grabTile, out TerrainFeature terrainFeature)) {
                     if (terrainFeature is Tree) {
                         ModEntry.ModHelper.Reflection.GetField<NetFloat>((Tree)terrainFeature, "health").SetValue(new NetFloat(0.0f));
                     } else if (terrainFeature is FruitTree) {
                         ModEntry.ModHelper.Reflection.GetField<NetFloat>((FruitTree)terrainFeature, "health").SetValue(new NetFloat(0.0f));
+                    }
+                }
+            }
+        }
+
+        private void InputEvents_ButtonReleased(object sender, EventArgsInput e) {
+            if (!Context.IsWorldReady || e.Button != SButton.MouseLeft) {
+                return;
+            }
+
+            mouseIsDown = false;
+        }
+
+        private void GameEvents_EighthUpdateTick(object sender, System.EventArgs e) {
+            Tool tool;
+            if (mouseIsDown) {
+                tool = Game1.player.CurrentTool;
+                if (tool is Axe && tool.UpgradeLevel == 5) {
+                    if (Game1.currentLocation.terrainFeatures.TryGetValue(grabTile, out TerrainFeature terrainFeature)) {
+                        if (terrainFeature is Tree) {
+                            //ModEntry.mon.Log($"health: {(terrainFeature as Tree).health.Value}");
+                            ModEntry.ModHelper.Reflection.GetField<NetFloat>((Tree)terrainFeature, "health").SetValue(new NetFloat(0.0f));
+                        } else if (terrainFeature is FruitTree) {
+                            ModEntry.ModHelper.Reflection.GetField<NetFloat>((FruitTree)terrainFeature, "health").SetValue(new NetFloat(0.0f));
+                        }
                     }
                 }
             }
