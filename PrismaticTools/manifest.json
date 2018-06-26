@@ -1,0 +1,10 @@
+﻿{
+   "Name": "PrismaticTools",
+   "Author": "stokastic",
+   "Version": "1.1.1",
+   "Description": "Adds prismatic tools and sprinklers to the game.",
+   "UniqueID": "stokastic.PrismaticTools",
+   "EntryDll": "PrismaticTools.dll",
+   "MinimumApiVersion": "2.6-beta.17",
+   "UpdateKeys": [ "Nexus:2428" ]
+}
