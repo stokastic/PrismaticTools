@@ -1,75 +1,28 @@
 ﻿using Harmony;
 using System.Collections.Generic;
 using StardewValley;
-using StardewValley.Tools;
 using Microsoft.Xna.Framework;
-using StardewModdingAPI;
-using StardewModdingAPI.Events;
+
 using StardewValley.TerrainFeatures;
 using Netcode;
+using StardewValley.Tools;
 
 namespace PrismaticTools.Framework {
 
-    class ToolInitializer {
-
-        private Vector2 grabTile;
-        private bool mouseIsDown = false;
-
-        public void Init() {
-            InputEvents.ButtonPressed += InputEvents_ButtonPressed;
-            //InputEvents.ButtonReleased += InputEvents_ButtonReleased;
-            //GameEvents.EighthUpdateTick += GameEvents_EighthUpdateTick;
-        }
-
-        private void InputEvents_ButtonPressed(object sender, EventArgsInput e) {
-            if (!Context.IsWorldReady || e.Button != SButton.MouseLeft) {
-                return;
-            }
-
-            mouseIsDown = true;
-            grabTile = e.Cursor.GrabTile;
-            Tool tool = Game1.player.CurrentTool;
-
-            if (tool is Pickaxe && tool.UpgradeLevel == 5) {
-                if (Game1.currentLocation.Objects.TryGetValue(grabTile, out Object obj)) {
-                    if (obj.Name == "Stone") {
-                        obj.MinutesUntilReady = 0;
-                    }
-                }
-            }
-            if (tool is Axe && tool.UpgradeLevel == 5) {
-                if (Game1.currentLocation.terrainFeatures.TryGetValue(grabTile, out TerrainFeature terrainFeature)) {
-                    if (terrainFeature is Tree) {
-                        ModEntry.ModHelper.Reflection.GetField<NetFloat>((Tree)terrainFeature, "health").SetValue(new NetFloat(0.0f));
-                    } else if (terrainFeature is FruitTree) {
-                        ModEntry.ModHelper.Reflection.GetField<NetFloat>((FruitTree)terrainFeature, "health").SetValue(new NetFloat(0.0f));
-                    }
-                }
+    [HarmonyPatch(typeof(Tree), "performToolAction")]
+    internal class PrismaticPerformToolActionTree {
+        static void Prefix(ref Tree __instance, Tool t, int explosion) {
+            if (t is Axe && (t as Axe).UpgradeLevel == 5 && explosion <= 0 && ModEntry.ModHelper.Reflection.GetField<NetFloat>(__instance, "health").GetValue() > -99f) {
+                __instance.health.Value = 0.0f;
             }
         }
+    }
 
-        private void InputEvents_ButtonReleased(object sender, EventArgsInput e) {
-            if (!Context.IsWorldReady || e.Button != SButton.MouseLeft) {
-                return;
-            }
-
-            mouseIsDown = false;
-        }
-
-        private void GameEvents_EighthUpdateTick(object sender, System.EventArgs e) {
-            Tool tool;
-            if (mouseIsDown) {
-                tool = Game1.player.CurrentTool;
-                if (tool is Axe && tool.UpgradeLevel == 5) {
-                    if (Game1.currentLocation.terrainFeatures.TryGetValue(grabTile, out TerrainFeature terrainFeature)) {
-                        if (terrainFeature is Tree) {
-                            //ModEntry.mon.Log($"health: {(terrainFeature as Tree).health.Value}");
-                            ModEntry.ModHelper.Reflection.GetField<NetFloat>((Tree)terrainFeature, "health").SetValue(new NetFloat(0.0f));
-                        } else if (terrainFeature is FruitTree) {
-                            ModEntry.ModHelper.Reflection.GetField<NetFloat>((FruitTree)terrainFeature, "health").SetValue(new NetFloat(0.0f));
-                        }
-                    }
-                }
+    [HarmonyPatch(typeof(FruitTree), "performToolAction")]
+    internal class PrismaticPerformToolActionFruitTree {
+        static void Prefix(ref FruitTree __instance, Tool t, int explosion) {
+            if (t is Axe && (t as Axe).UpgradeLevel == 5 && explosion <= 0 && ModEntry.ModHelper.Reflection.GetField<NetFloat>(__instance, "health").GetValue() > -99f) {
+                __instance.health.Value = 0.0f;
             }
         }
     }
@@ -81,8 +34,8 @@ namespace PrismaticTools.Framework {
                 __result.Clear();
                 Vector2 direction;
                 Vector2 orth;
-                int radius = 2;
-                int length = 7;
+                int radius = ModEntry.Config.PrismaticToolWidth;
+                int length = ModEntry.Config.PrismaticToolLength;
                 switch (who.FacingDirection) {
                     case 0: direction = new Vector2(0, -1); orth = new Vector2(1, 0); break;
                     case 1: direction = new Vector2(1, 0);  orth = new Vector2(0, 1); break;
@@ -105,7 +58,15 @@ namespace PrismaticTools.Framework {
     internal class PrismaticGetName {
         public static bool Prefix(Tool __instance, ref string __result) {
             if (__instance.UpgradeLevel == 5) {
-                __result = "Prismatic " + __instance.BaseName;
+
+                switch (__instance.BaseName) {
+                    case "Axe": __result = ModEntry.ModHelper.Translation.Get("prismaticAxe"); break;
+                    case "Pickaxe": __result = ModEntry.ModHelper.Translation.Get("prismaticPickaxe"); break;
+                    case "Watering Can": __result = ModEntry.ModHelper.Translation.Get("prismaticWatercan"); break;
+                    case "Hoe": __result = ModEntry.ModHelper.Translation.Get("prismaticHoe"); break;
+                }
+                //__result = "Prismatic " + __instance.BaseName;
+                //__result = ModEntry.ModHelper.Translation.Get("prismatic.prefix") + " " + Game1.content.LoadString("Strings\\StringsFromCSFiles:Axe.cs.1");
                 return false;
             }
             return true;

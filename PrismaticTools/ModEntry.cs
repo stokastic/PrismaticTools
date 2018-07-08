@@ -40,7 +40,6 @@ namespace PrismaticTools {
             helper.Content.AssetEditors.Add(new AssetEditor());
             SprinklerInitializer.Init();
             BlacksmithInitializer.Init();
-            new ToolInitializer().Init();
 
             InitColors();
 

@@ -7,6 +7,11 @@ using System.Collections.Generic;
 namespace PrismaticTools.Framework {
     public class AssetEditor : IAssetEditor {
 
+        private string barName = ModEntry.ModHelper.Translation.Get("prismaticBar.name");
+        private string barDesc = ModEntry.ModHelper.Translation.Get("prismaticBar.description");
+        private string sprinklerName = ModEntry.ModHelper.Translation.Get("prismaticSprinkler.name");
+        private string sprinklerDesc = ModEntry.ModHelper.Translation.Get("prismaticSprinkler.description");
+
         public bool CanEdit<T>(IAssetInfo asset) {
             bool canEdit =
                    asset.AssetNameEquals("Maps/springobjects")
@@ -27,17 +32,19 @@ namespace PrismaticTools.Framework {
                 asset.AsImage().PatchImage(bar, targetArea: Rektangle(PrismaticBarItem.INDEX));
                 asset.AsImage().PatchImage(sprinkler, targetArea: Rektangle(PrismaticSprinklerItem.INDEX));
             } else if (asset.AssetNameEquals("Data/ObjectInformation")) {
-                asset.AsDictionary<int, string>().Data.Add(PrismaticBarItem.INDEX, $"{PrismaticBarItem.NAME}/{PrismaticBarItem.PRICE}/{PrismaticBarItem.EDIBILITY}/{PrismaticBarItem.TYPE} {PrismaticBarItem.CATEGORY}/{PrismaticBarItem.NAME}/{PrismaticBarItem.DESCRIPTION}");
-                asset.AsDictionary<int, string>().Data.Add(PrismaticSprinklerItem.INDEX, $"{PrismaticSprinklerItem.NAME}/{PrismaticSprinklerItem.PRICE}/{PrismaticSprinklerItem.EDIBILITY}/{PrismaticSprinklerItem.TYPE} {PrismaticSprinklerItem.CATEGORY}/{PrismaticSprinklerItem.NAME}/{PrismaticSprinklerItem.DESCRIPTION}");
+                asset.AsDictionary<int, string>().Data.Add(PrismaticBarItem.INDEX, $"{barName}/{PrismaticBarItem.PRICE}/{PrismaticBarItem.EDIBILITY}/{PrismaticBarItem.TYPE} {PrismaticBarItem.CATEGORY}/{barName}/{barDesc}");
+                asset.AsDictionary<int, string>().Data.Add(PrismaticSprinklerItem.INDEX, $"{sprinklerName}/{PrismaticSprinklerItem.PRICE}/{PrismaticSprinklerItem.EDIBILITY}/{PrismaticSprinklerItem.TYPE} {PrismaticSprinklerItem.CATEGORY}/{sprinklerName}/{sprinklerDesc}");
             } else if (asset.AssetNameEquals("Data/CraftingRecipes")) {
                 IAssetDataForDictionary<string, string> oldDict = asset.AsDictionary<string, string>();
                 Dictionary<string, string> newDict = new Dictionary<string, string>();
-
                 // somehow the Dictionary maintains ordering, so reconstruct it with new sprinkler recipe immediately after prismatic
                 foreach (string key in oldDict.Data.Keys) {
                     newDict.Add(key, oldDict.Data[key]);
                     if (key.Equals("Iridium Sprinkler")) {
-                        newDict.Add("Prismatic Sprinkler", $"{PrismaticBarItem.INDEX} 2 787 2/Home/{PrismaticSprinklerItem.INDEX}/false/Farming 9");
+                        if (asset.Locale != "en")
+                            newDict.Add("Prismatic Sprinkler", $"{PrismaticBarItem.INDEX} 2 787 2/Home/{PrismaticSprinklerItem.INDEX}/false/Farming {PrismaticSprinklerItem.CRAFTING_LEVEL}/{sprinklerName}");
+                        else
+                            newDict.Add("Prismatic Sprinkler", $"{PrismaticBarItem.INDEX} 2 787 2/Home/{PrismaticSprinklerItem.INDEX}/false/Farming {PrismaticSprinklerItem.CRAFTING_LEVEL}");
                     }
                 }
                 asset.AsDictionary<string, string>().Data.Clear();

@@ -3,9 +3,10 @@ using System.Collections.Generic;
 
 namespace PrismaticTools.Framework {
     public class PrismaticAPI {
-        private int SprinklerRange { get; set; } = 3;
-        public int SprinklerIndex { get; set; } = PrismaticSprinklerItem.INDEX;
-        public int BarIndex { get; set; } = PrismaticBarItem.INDEX;
+        public int SprinklerRange { get; } = 3;
+        public int SprinklerIndex { get; } = PrismaticSprinklerItem.INDEX;
+        public int BarIndex { get; } = PrismaticBarItem.INDEX;
+        public bool ArePrismaticSprinklersScarecrows { get; } = ModEntry.Config.UseSprinklersAsScarecrows;
 
         public IEnumerable<Vector2> GetSprinklerCoverage(Vector2 origin) {
             for (int x = -SprinklerRange; x <= SprinklerRange; x++) {
