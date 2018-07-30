@@ -11,6 +11,7 @@ using PrismaticTools.Framework;
 using System.Collections.Generic;
 using StardewValley.Objects;
 using StardewValley.Locations;
+using StardewValley.Tools;
 
 namespace PrismaticTools {
 
@@ -49,7 +50,13 @@ namespace PrismaticTools {
 
         private void GameEvents_EighthUpdateTick(object sender, System.EventArgs e) {
             Farmer farmer = Game1.player;
-            Item item = farmer.Items[farmer.CurrentToolIndex];
+            Item item;
+            try {
+                item = farmer.Items[farmer.CurrentToolIndex];
+            }  catch (System.ArgumentOutOfRangeException) {
+                return;
+            }
+
             if (item == null || !(item is Object) || !((item as Object).ParentSheetIndex == PrismaticBarItem.INDEX)) {
                 return;
             }
@@ -68,7 +75,7 @@ namespace PrismaticTools {
 
         private void UpgradeTools(string command, string[] args) {
             foreach (Item item in Game1.player.Items) {
-                if (item is Tool) {
+                if (item is Axe || item is WateringCan || item is Pickaxe || item is Hoe) {
                     (item as Tool).UpgradeLevel = 5;
                 }
             }
@@ -114,6 +121,9 @@ namespace PrismaticTools {
                     // check fridge
                     if ((location as FarmHouse).fridge.Value != null) {
                         foreach (Item item in (location as FarmHouse).fridge.Value.items) {
+                            if (item == null) {
+                                continue;
+                            }
                             if (item.Name.Contains("Prismatic")) {
                                 SwapIndex(item);
                             }
@@ -122,6 +132,10 @@ namespace PrismaticTools {
                 }
                 foreach (Object obj in location.Objects.Values) {
                     // check chests, signposts, furnaces, and placed sprinklers
+                    if (obj == null) {
+                        continue;
+                    }
+
                     if (obj is Chest) {
                         foreach (Item item in (obj as Chest).items) {
                             if (item.Name.Contains("Prismatic")) {

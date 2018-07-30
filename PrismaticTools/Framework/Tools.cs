@@ -27,6 +27,19 @@ namespace PrismaticTools.Framework {
         }
     }
 
+    [HarmonyPatch(typeof(Pickaxe), "DoFunction")]
+    internal class PrimaticDoFunction {
+        static void Prefix(ref Pickaxe __instance, GameLocation location, int x, int y, int power, Farmer who) {
+            if (__instance.UpgradeLevel == 5) {
+                if (location.Objects.TryGetValue(new Vector2(x/64, y/64), out Object obj)) {
+                    if (obj.Name == "Stone") {
+                        obj.MinutesUntilReady = 0;
+                    }
+                }
+            }
+        }
+    }
+
     [HarmonyPatch(typeof(Tool), "tilesAffected")]
     internal class PrismaticTilesAffected {
         static void Postfix(ref List<Vector2> __result, Vector2 tileLocation, int power, Farmer who) {
