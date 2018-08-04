@@ -24,6 +24,7 @@ namespace PrismaticTools {
         public static Texture2D toolsTexture;
         private int colorCycleIndex = 0;
         private List<Color> colors = new List<Color>();
+
         public override void Entry(IModHelper helper) {
             mon = Monitor;
             ModHelper = helper;

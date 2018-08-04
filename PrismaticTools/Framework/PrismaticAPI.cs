@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace PrismaticTools.Framework {
     public class PrismaticAPI {
-        public int SprinklerRange { get; } = 3;
+        public int SprinklerRange { get; } = ModEntry.Config.SprinklerRange;
         public int SprinklerIndex { get; } = PrismaticSprinklerItem.INDEX;
         public int BarIndex { get; } = PrismaticBarItem.INDEX;
         public bool ArePrismaticSprinklersScarecrows { get; } = ModEntry.Config.UseSprinklersAsScarecrows;

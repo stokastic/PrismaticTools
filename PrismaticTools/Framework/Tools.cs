@@ -40,6 +40,15 @@ namespace PrismaticTools.Framework {
         }
     }
 
+    [HarmonyPatch(typeof(ResourceClump), "performToolAction")]
+    internal class PrismaticPerformToolActionResourceClump {
+        static void Prefix(ref ResourceClump __instance, Tool t, int damage, Vector2 tileLocation, GameLocation location) {
+            if (t is Axe && t.UpgradeLevel == 5 && (__instance.parentSheetIndex.Value == 600 || __instance.parentSheetIndex.Value == 602)) {
+                __instance.health.Value = 0;
+            }
+        }
+    }
+
     [HarmonyPatch(typeof(Tool), "tilesAffected")]
     internal class PrismaticTilesAffected {
         static void Postfix(ref List<Vector2> __result, Vector2 tileLocation, int power, Farmer who) {

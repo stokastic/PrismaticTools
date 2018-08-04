@@ -81,8 +81,8 @@ namespace PrismaticTools.Framework {
                         });
 
                         if (location is Farm || location.IsGreenhouse) {
-                            for (int index1 = (int)obj.TileLocation.X - 3; index1 <= obj.TileLocation.X + 3.0; ++index1) {
-                                for (int index2 = (int)obj.TileLocation.Y - 3; index2 <= obj.TileLocation.Y + 3.0; ++index2) {
+                            for (int index1 = (int)obj.TileLocation.X - ModEntry.Config.SprinklerRange; index1 <= obj.TileLocation.X + ModEntry.Config.SprinklerRange; ++index1) {
+                                for (int index2 = (int)obj.TileLocation.Y - ModEntry.Config.SprinklerRange; index2 <= obj.TileLocation.Y + ModEntry.Config.SprinklerRange; ++index2) {
                                     Vector2 key = new Vector2(index1, index2);
 
                                     // water dirt
