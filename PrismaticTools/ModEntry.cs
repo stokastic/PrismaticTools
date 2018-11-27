@@ -11,6 +11,7 @@ using PrismaticTools.Framework;
 using System.Collections.Generic;
 using StardewValley.Objects;
 using StardewValley.Locations;
+using StardewValley.TerrainFeatures;
 using StardewValley.Tools;
 
 namespace PrismaticTools {
@@ -46,7 +47,55 @@ namespace PrismaticTools {
             InitColors();
 
             var harmony = HarmonyInstance.Create("stokastic.PrismaticTools");
-            harmony.PatchAll(Assembly.GetExecutingAssembly());
+            this.ApplyPatches(harmony);
+        }
+
+        private void ApplyPatches(HarmonyInstance harmony) {
+            // furnaces
+            harmony.Patch(
+                original: AccessTools.Method(typeof(Farmer), nameof(Farmer.getTallyOfObject)),
+                prefix: new HarmonyMethod(typeof(PrismaticPatches), nameof(PrismaticPatches.Farmer_GetTallyOfObject))
+            );
+            harmony.Patch(
+                original: AccessTools.Method(typeof(Object), nameof(Object.performObjectDropInAction)),
+                prefix: new HarmonyMethod(typeof(PrismaticPatches), nameof(PrismaticPatches.Object_PerformObjectDropInAction))
+            );
+
+            // sprinklers
+            harmony.Patch(
+                original: AccessTools.Method(typeof(Farm), nameof(Farm.addCrows)),
+                prefix: new HarmonyMethod(typeof(PrismaticPatches), nameof(PrismaticPatches.Farm_AddCrows))
+            );
+
+            // tools
+            harmony.Patch(
+                original: AccessTools.Method(typeof(Tree), nameof(Tree.performToolAction)),
+                prefix: new HarmonyMethod(typeof(PrismaticPatches), nameof(PrismaticPatches.Tree_PerformToolAction))
+            );
+            harmony.Patch(
+                original: AccessTools.Method(typeof(FruitTree), nameof(FruitTree.performToolAction)),
+                prefix: new HarmonyMethod(typeof(PrismaticPatches), nameof(PrismaticPatches.FruitTree_PerformToolAction))
+            );
+            harmony.Patch(
+                original: AccessTools.Method(typeof(Pickaxe), nameof(Pickaxe.DoFunction)),
+                prefix: new HarmonyMethod(typeof(PrismaticPatches), nameof(PrismaticPatches.Pickaxe_DoFunction))
+            );
+            harmony.Patch(
+                original: AccessTools.Method(typeof(ResourceClump), nameof(ResourceClump.performToolAction)),
+                prefix: new HarmonyMethod(typeof(PrismaticPatches), nameof(PrismaticPatches.ResourceClump_PerformToolAction))
+            );
+            harmony.Patch(
+                original: AccessTools.Method(typeof(Tool), "tilesAffected"),
+                postfix: new HarmonyMethod(typeof(PrismaticPatches), nameof(PrismaticPatches.Tool_TilesAffected_Postfix))
+            );
+            harmony.Patch(
+                original: AccessTools.Property(typeof(Tool), nameof(Tool.Name)).GetMethod,
+                prefix: new HarmonyMethod(typeof(PrismaticPatches), nameof(PrismaticPatches.Tool_Name))
+            );
+            harmony.Patch(
+                original: AccessTools.Property(typeof(Tool), nameof(Tool.DisplayName)).GetMethod,
+                prefix: new HarmonyMethod(typeof(PrismaticPatches), nameof(PrismaticPatches.Tool_DisplayName))
+            );
         }
 
         private void GameEvents_EighthUpdateTick(object sender, System.EventArgs e) {
@@ -58,7 +107,7 @@ namespace PrismaticTools {
                 return;
             }
 
-            if (item == null || !(item is Object) || !((item as Object).ParentSheetIndex == PrismaticBarItem.INDEX)) {
+            if (!(item is Object obj) || obj.ParentSheetIndex != PrismaticBarItem.INDEX) {
                 return;
             }
 
