@@ -11,15 +11,17 @@ namespace PrismaticTools.Framework {
         private static int UpgradeCost = ModEntry.Config.PrismaticToolCost;
         private static int NumBars = 3;
 
-        public static void Init() {
-            MenuEvents.MenuChanged += MenuEvents_MenuChanged1;
+        public static void Init(IModEvents events) {
+            events.Display.MenuChanged += OnMenuChanged;
         }
 
-        private static void MenuEvents_MenuChanged1(object sender, EventArgsClickableMenuChanged e) {
-            if (!(e.NewMenu is ShopMenu)) {
+        /// <summary>Raised after a game menu is opened, closed, or replaced.</summary>
+        /// <param name="sender">The event sender.</param>
+        /// <param name="e">The event arguments.</param>
+        private static void OnMenuChanged(object sender, MenuChangedEventArgs e) {
+            if (!(e.NewMenu is ShopMenu menu)) {
                 return;
             }
-            ShopMenu menu = e.NewMenu as ShopMenu;
             List<int> categories = ModEntry.ModHelper.Reflection.GetField<List<int>>(menu, "categoriesToSellHere").GetValue();
             if (!categories.Contains(Object.GemCategory) || !categories.Contains(Object.mineralsCategory) || !categories.Contains(Object.metalResources)) {
                 return;

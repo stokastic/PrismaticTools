@@ -12,13 +12,16 @@ namespace PrismaticTools.Framework {
     //   - optionally makes them act as scarecrows
     public static class SprinklerInitializer {
         
-        public static void Init() {
-            TimeEvents.AfterDayStarted += TimeEvents_AfterDayStarted;
-            SaveEvents.AfterLoad += SaveEvents_AfterLoad;
-            LocationEvents.ObjectsChanged += LocationEvents_ObjectsChanged;
+        public static void Init(IModEvents events) {
+            events.GameLoop.DayStarted += OnDayStarted;
+            events.GameLoop.SaveLoaded += OnSaveLoaded;
+            events.World.ObjectListChanged += OnObjectListChanged;
         }
 
-        private static void SaveEvents_AfterLoad(object sender, System.EventArgs e) {
+        /// <summary>Raised after the player loads a save slot and the world is initialised.</summary>
+        /// <param name="sender">The event sender.</param>
+        /// <param name="e">The event arguments.</param>
+        private static void OnSaveLoaded(object sender, SaveLoadedEventArgs e) {
             if (ModEntry.Config.UseSprinklersAsScarecrows) {
                 foreach (GameLocation location in Game1.locations) {
                     foreach (Object obj in location.Objects.Values) {
@@ -48,7 +51,10 @@ namespace PrismaticTools.Framework {
             }
         }
 
-        private static void LocationEvents_ObjectsChanged(object sender, EventArgsLocationObjectsChanged e) {
+        /// <summary>Raised after objects are added or removed in a location.</summary>
+        /// <param name="sender">The event sender.</param>
+        /// <param name="e">The event arguments.</param>
+        private static void OnObjectListChanged(object sender, ObjectListChangedEventArgs e) {
             // adds lightsources to newly placed sprinkler
             if (!ModEntry.Config.UseSprinklersAsLamps) {
                 return;
@@ -64,7 +70,10 @@ namespace PrismaticTools.Framework {
             }
         }
 
-        private static void TimeEvents_AfterDayStarted(object sender, System.EventArgs e) {
+        /// <summary>Raised after the game begins a new day (including when the player loads a save).</summary>
+        /// <param name="sender">The event sender.</param>
+        /// <param name="e">The event arguments.</param>
+        private static void OnDayStarted(object sender, DayStartedEventArgs e) {
             foreach (GameLocation location in Game1.locations) {
                 foreach (Object obj in location.Objects.Values) {
                     if (obj.ParentSheetIndex == PrismaticSprinklerItem.INDEX) {

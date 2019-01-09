@@ -36,13 +36,13 @@ namespace PrismaticTools {
 
             helper.ConsoleCommands.Add("ptools", "Upgrade all tools to prismatic", UpgradeTools);
 
-            SaveEvents.AfterLoad += SaveEvents_AfterLoad;
-            PlayerEvents.InventoryChanged += PlayerEvents_InventoryChanged;
-            GameEvents.EighthUpdateTick += GameEvents_EighthUpdateTick;
+            helper.Events.GameLoop.SaveLoaded += OnSaveLoaded;
+            helper.Events.GameLoop.UpdateTicked += OnUpdateTicked;
+            helper.Events.Player.InventoryChanged += OnInventoryChanged;
 
             helper.Content.AssetEditors.Add(new AssetEditor());
-            SprinklerInitializer.Init();
-            BlacksmithInitializer.Init();
+            SprinklerInitializer.Init(helper.Events);
+            BlacksmithInitializer.Init(helper.Events);
 
             InitColors();
 
@@ -98,7 +98,13 @@ namespace PrismaticTools {
             );
         }
 
-        private void GameEvents_EighthUpdateTick(object sender, System.EventArgs e) {
+        /// <summary>Raised after the game state is updated (≈60 times per second).</summary>
+        /// <param name="sender">The event sender.</param>
+        /// <param name="e">The event arguments.</param>
+        private void OnUpdateTicked(object sender, UpdateTickedEventArgs e) {
+            if (!e.IsMultipleOf(8))
+                return;
+
             Farmer farmer = Game1.player;
             Item item;
             try {
@@ -147,11 +153,18 @@ namespace PrismaticTools {
             }
         }
 
-        private void PlayerEvents_InventoryChanged(object sender, EventArgsInventoryChanged e) {
-            AddLightsToInventoryItems();
+        /// <summary>Raised after items are added or removed to a player's inventory.</summary>
+        /// <param name="sender">The event sender.</param>
+        /// <param name="e">The event arguments.</param>
+        private void OnInventoryChanged(object sender, InventoryChangedEventArgs e) {
+            if (e.IsLocalPlayer)
+                AddLightsToInventoryItems();
         }
 
-        private void SaveEvents_AfterLoad(object sender, System.EventArgs e) {
+        /// <summary>Raised after the player loads a save slot and the world is initialised.</summary>
+        /// <param name="sender">The event sender.</param>
+        /// <param name="e">The event arguments.</param>
+        private void OnSaveLoaded(object sender, SaveLoadedEventArgs e) {
             // force add sprinkler recipe for people who were level 10 before installing mod
             if (Game1.player.FarmingLevel >= PrismaticSprinklerItem.CRAFTING_LEVEL) {
                 try {
