@@ -1,8 +1,10 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System;
+using Microsoft.Xna.Framework;
 using StardewValley;
 using StardewValley.TerrainFeatures;
 using StardewModdingAPI.Events;
 using System.Collections.Generic;
+using SObject = StardewValley.Object;
 
 namespace PrismaticTools.Framework {
 
@@ -24,7 +26,7 @@ namespace PrismaticTools.Framework {
         private static void OnSaveLoaded(object sender, SaveLoadedEventArgs e) {
             if (ModEntry.Config.UseSprinklersAsScarecrows) {
                 foreach (GameLocation location in Game1.locations) {
-                    foreach (Object obj in location.Objects.Values) {
+                    foreach (SObject obj in location.Objects.Values) {
                         if (obj.ParentSheetIndex == PrismaticSprinklerItem.INDEX) {
                             obj.Name = "Prismatic Scarecrow Sprinkler";
                         }
@@ -36,16 +38,14 @@ namespace PrismaticTools.Framework {
             if (!ModEntry.Config.UseSprinklersAsLamps) {
                 return;
             }
-            Object sprinkler;
+
             foreach (GameLocation location in Game1.locations) {
-                if (location is GameLocation) {
-                    foreach (KeyValuePair<Vector2, Object> pair in location.objects.Pairs) {
-                        if (location.objects[pair.Key].ParentSheetIndex == PrismaticSprinklerItem.INDEX) {
-                            sprinkler = location.objects[pair.Key];
-                            int id = (int)sprinkler.TileLocation.X * 4000 + (int)sprinkler.TileLocation.Y;
-                            sprinkler.lightSource = new LightSource(4, new Vector2((sprinkler.boundingBox.X + 32), (sprinkler.boundingBox.Y + 32)), 2.0f, Color.Black, id);
-                            location.sharedLights.Add(sprinkler.lightSource.Clone());
-                        }
+                foreach (KeyValuePair<Vector2, SObject> pair in location.objects.Pairs) {
+                    if (location.objects[pair.Key].ParentSheetIndex == PrismaticSprinklerItem.INDEX) {
+                        SObject sprinkler = location.objects[pair.Key];
+                        int id = (int)sprinkler.TileLocation.X * 4000 + (int)sprinkler.TileLocation.Y;
+                        sprinkler.lightSource = new LightSource(4, new Vector2((sprinkler.boundingBox.X + 32), (sprinkler.boundingBox.Y + 32)), 2.0f, Color.Black, id);
+                        location.sharedLights.Add(id, sprinkler.lightSource.Clone());
                     }
                 }
             }
@@ -59,13 +59,13 @@ namespace PrismaticTools.Framework {
             if (!ModEntry.Config.UseSprinklersAsLamps) {
                 return;
             }
-            foreach (KeyValuePair<Vector2, Object> pair in e.Added) {
-                Object obj = pair.Value;
+            foreach (KeyValuePair<Vector2, SObject> pair in e.Added) {
+                SObject obj = pair.Value;
                 if (obj.ParentSheetIndex == PrismaticSprinklerItem.INDEX) {
                     int id = (int)obj.TileLocation.X * 4000 + (int)obj.TileLocation.Y;
                     obj.lightSource = new LightSource(4, new Vector2((obj.boundingBox.X + 32), (obj.boundingBox.Y + 32)), 2.0f, Color.Black, id);
                     obj.Name = "Prismatic Scarecrow Sprinkler";
-                    Game1.currentLocation.sharedLights.Add(obj.lightSource.Clone());
+                    e.Location.sharedLights.Add(id, obj.lightSource.Clone());
                 }
             }
         }
@@ -75,7 +75,7 @@ namespace PrismaticTools.Framework {
         /// <param name="e">The event arguments.</param>
         private static void OnDayStarted(object sender, DayStartedEventArgs e) {
             foreach (GameLocation location in Game1.locations) {
-                foreach (Object obj in location.Objects.Values) {
+                foreach (SObject obj in location.Objects.Values) {
                     if (obj.ParentSheetIndex == PrismaticSprinklerItem.INDEX) {
 
                         // add water spray animation

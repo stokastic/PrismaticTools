@@ -1,6 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System.Reflection;
 
 using Harmony;
 using StardewValley;
@@ -117,9 +116,9 @@ namespace PrismaticTools {
                 return;
             }
 
-            for (int i=0; i<farmer.currentLocation.sharedLights.Count; i++) {
-                if (farmer.currentLocation.sharedLights[i].Identifier == (int)farmer.UniqueMultiplayerID) {
-                    farmer.currentLocation.sharedLights[i].color.Value = colors[colorCycleIndex];
+            foreach (var light in farmer.currentLocation.sharedLights.Values) {
+                if (light.Identifier == (int)farmer.UniqueMultiplayerID) {
+                    light.color.Value = colors[colorCycleIndex];
                 }
             }
             colorCycleIndex = (colorCycleIndex + 1) % colors.Count;
