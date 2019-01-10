@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using StardewValley;
 using StardewValley.TerrainFeatures;
 using StardewModdingAPI.Events;
@@ -34,19 +33,11 @@ namespace PrismaticTools.Framework {
                 }
             }
 
-            // set light source
-            if (!ModEntry.Config.UseSprinklersAsLamps) {
-                return;
-            }
-
-            foreach (GameLocation location in Game1.locations) {
-                foreach (KeyValuePair<Vector2, SObject> pair in location.objects.Pairs) {
-                    if (location.objects[pair.Key].ParentSheetIndex == PrismaticSprinklerItem.INDEX) {
-                        SObject sprinkler = location.objects[pair.Key];
-                        int id = (int)sprinkler.TileLocation.X * 4000 + (int)sprinkler.TileLocation.Y;
-                        sprinkler.lightSource = new LightSource(4, new Vector2((sprinkler.boundingBox.X + 32), (sprinkler.boundingBox.Y + 32)), 2.0f, Color.Black, id);
-                        location.sharedLights.Add(id, sprinkler.lightSource.Clone());
-                    }
+            // set light sources
+            if (ModEntry.Config.UseSprinklersAsLamps) {
+                foreach (GameLocation location in Game1.locations) {
+                    foreach (KeyValuePair<Vector2, SObject> pair in location.objects.Pairs)
+                        TryEnablePrismaticSprinkler(location, pair.Key, pair.Value);
                 }
             }
         }
@@ -55,19 +46,29 @@ namespace PrismaticTools.Framework {
         /// <param name="sender">The event sender.</param>
         /// <param name="e">The event arguments.</param>
         private static void OnObjectListChanged(object sender, ObjectListChangedEventArgs e) {
-            // adds lightsources to newly placed sprinkler
-            if (!ModEntry.Config.UseSprinklersAsLamps) {
+            // adds light sources to newly placed sprinklers
+            if (ModEntry.Config.UseSprinklersAsLamps) {
+                foreach (KeyValuePair<Vector2, SObject> pair in e.Added)
+                    TryEnablePrismaticSprinkler(e.Location, pair.Key, pair.Value);
+            }
+        }
+
+        /// <summary>Try to add the light source for a prismatic sprinkler, if applicable.</summary>
+        /// <param name="location">The location containing the sprinkler.</param>
+        /// <param name="tile">The sprinkler's tile coordinate within the location.</param>
+        /// <param name="obj">The object to check.</param>
+        private static void TryEnablePrismaticSprinkler(GameLocation location, Vector2 tile, SObject obj)
+        {
+            if (obj.ParentSheetIndex != PrismaticSprinklerItem.INDEX || !ModEntry.Config.UseSprinklersAsLamps)
                 return;
-            }
-            foreach (KeyValuePair<Vector2, SObject> pair in e.Added) {
-                SObject obj = pair.Value;
-                if (obj.ParentSheetIndex == PrismaticSprinklerItem.INDEX) {
-                    int id = (int)obj.TileLocation.X * 4000 + (int)obj.TileLocation.Y;
-                    obj.lightSource = new LightSource(4, new Vector2((obj.boundingBox.X + 32), (obj.boundingBox.Y + 32)), 2.0f, Color.Black, id);
-                    obj.Name = "Prismatic Scarecrow Sprinkler";
-                    e.Location.sharedLights.Add(id, obj.lightSource.Clone());
-                }
-            }
+
+            // set name
+            obj.Name = "Prismatic Scarecrow Sprinkler";
+
+            // add light source
+            int id = (int)tile.X * 4000 + (int)tile.Y;
+            obj.lightSource = new LightSource(4, tile * Game1.tileSize, 2.0f, Color.Black, id);
+            location.sharedLights.Add(id, obj.lightSource);
         }
 
         /// <summary>Raised after the game begins a new day (including when the player loads a save).</summary>
