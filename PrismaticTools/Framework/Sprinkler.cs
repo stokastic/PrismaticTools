@@ -67,8 +67,11 @@ namespace PrismaticTools.Framework {
 
             // add light source
             int id = (int)tile.X * 4000 + (int)tile.Y;
-            obj.lightSource = new LightSource(4, tile * Game1.tileSize, 2.0f, Color.Black, id);
-            location.sharedLights.Add(id, obj.lightSource);
+            if (!location.sharedLights.ContainsKey(id))
+            {
+                obj.lightSource = new LightSource(4, tile * Game1.tileSize, 2.0f, Color.Black, id);
+                location.sharedLights.Add(id, obj.lightSource);
+            }
         }
 
         /// <summary>Raised after the game begins a new day (including when the player loads a save).</summary>
