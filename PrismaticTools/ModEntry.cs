@@ -179,39 +179,45 @@ namespace PrismaticTools {
         private void IndexCompatibilityFix() {
             var watch = System.Diagnostics.Stopwatch.StartNew();
             foreach (GameLocation location in Game1.locations) {
-                if (location is FarmHouse) {
-                    // check fridge
-                    if ((location as FarmHouse).fridge.Value != null) {
-                        foreach (Item item in (location as FarmHouse).fridge.Value.items) {
-                            if (item == null) {
-                                continue;
-                            }
-                            if (item.Name.Contains("Prismatic")) {
+                // check fridge
+                if (location is FarmHouse farmhouse && farmhouse.fridge.Value is Chest fridge) {
+                        foreach (Item item in fridge.items) {
+                            if (item?.Name != null && item.Name.Contains("Prismatic")) {
                                 SwapIndex(item);
                             }
                         }
-                    }
                 }
-                foreach (Object obj in location.Objects.Values) {
-                    // check chests, signposts, furnaces, and placed sprinklers
-                    if (obj == null) {
-                        continue;
-                    }
 
-                    if (obj is Chest) {
-                        foreach (Item item in (obj as Chest).items) {
-                            if (item.Name.Contains("Prismatic")) {
-                                SwapIndex(item);
+                // check chests, signposts, furnaces, and placed sprinklers
+                foreach (Object obj in location.Objects.Values)
+                {
+                    switch (obj)
+                    {
+                        // chest
+                        case Chest chest:
+                            foreach (Item item in chest.items) {
+                                if (item?.Name != null && item.Name.Contains("Prismatic")) {
+                                    SwapIndex(item);
+                                }
                             }
-                        }
-                    } else if (obj is Sign) {
-                        SwapIndex((obj as Sign).displayItem.Value);
-                    } else if (obj.bigCraftable.Value && obj.name.Equals("Furnace")) {
-                        if (obj.heldObject.Value != null) {
-                            SwapIndex((obj.heldObject.Value));
-                        }
-                    } else if (obj.ParentSheetIndex == PrismaticBarItem.OLD_INDEX || obj.ParentSheetIndex == PrismaticSprinklerItem.OLD_INDEX) {
-                        SwapIndex(obj);
+                            break;
+
+                        // sign
+                        case Sign sign:
+                            SwapIndex(sign.displayItem.Value);
+                            break;
+
+                        default:
+                            // furnace
+                            if (obj.bigCraftable.Value && obj.Name == "Furnace") {
+                                SwapIndex(obj.heldObject.Value);
+                            }
+
+                            // prismatic bar/sprinkler
+                            else if (obj.ParentSheetIndex == PrismaticBarItem.OLD_INDEX || obj.ParentSheetIndex == PrismaticSprinklerItem.OLD_INDEX) {
+                                SwapIndex(obj);
+                            }
+                            break;
                     }
                 }
             }
@@ -221,11 +227,16 @@ namespace PrismaticTools {
                     SwapIndex(item);
                 }
             }
+
             watch.Stop();
             Monitor.Log($"IndexCompatibility exec time: {watch.ElapsedMilliseconds} ms", LogLevel.Trace);
         }
 
         private void SwapIndex(Item item) {
+            if (item == null) {
+                return;
+            }
+
             if (item.ParentSheetIndex == PrismaticBarItem.OLD_INDEX) {
                 item.ParentSheetIndex = PrismaticBarItem.INDEX;
             }
