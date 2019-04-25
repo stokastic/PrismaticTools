@@ -19,7 +19,7 @@ namespace PrismaticTools.Framework {
         public const int OLD_INDEX = 812;
         public const string NAME = "Prismatic Bar";
         public const string DESCRIPTION = "A mystical ingot forged from legend itself.";
-        public const int PRICE = 2500;
+        public const int PRICE = 500;
         public const string TYPE = "Basic";
         public const int CATEGORY = metalResources;
         public const int EDIBILITY = -300;
