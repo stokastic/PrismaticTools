@@ -1,8 +1,7 @@
-﻿using StardewValley;
+using StardewValley;
 
 namespace PrismaticTools.Framework {
-
-    public class PrismaticSprinklerItem { 
+    public class PrismaticSprinklerItem {
         public const int INDEX = 1113;
         public const string NAME = "Prismatic Sprinkler";
         public const int PRICE = 2000;

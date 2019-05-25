@@ -1,49 +1,41 @@
-﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-
+using System.Collections.Generic;
 using Harmony;
-using StardewValley;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using PrismaticTools.Framework;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
-
-using PrismaticTools.Framework;
-using System.Collections.Generic;
-using StardewValley.Objects;
-using StardewValley.Locations;
+using StardewValley;
 using StardewValley.TerrainFeatures;
 using StardewValley.Tools;
 
 namespace PrismaticTools {
-
     public class ModEntry : Mod {
-
-        public static IMonitor mon;
         public static IModHelper ModHelper;
         public static ModConfig Config;
+        public static Texture2D ToolsTexture;
 
-        public static Texture2D toolsTexture;
-        private int colorCycleIndex = 0;
-        private List<Color> colors = new List<Color>();
+        private int colorCycleIndex;
+        private readonly List<Color> colors = new List<Color>();
 
         public override void Entry(IModHelper helper) {
-            mon = Monitor;
             ModHelper = helper;
 
-            Config = Helper.ReadConfig<ModConfig>();
+            Config = this.Helper.ReadConfig<ModConfig>();
 
-            toolsTexture = ModHelper.Content.Load<Texture2D>("Assets/tools.png", ContentSource.ModFolder);
+            ToolsTexture = ModHelper.Content.Load<Texture2D>("Assets/tools.png");
 
-            helper.ConsoleCommands.Add("ptools", "Upgrade all tools to prismatic", UpgradeTools);
+            helper.ConsoleCommands.Add("ptools", "Upgrade all tools to prismatic", this.UpgradeTools);
 
-            helper.Events.GameLoop.SaveLoaded += OnSaveLoaded;
-            helper.Events.GameLoop.UpdateTicked += OnUpdateTicked;
-            helper.Events.Player.InventoryChanged += OnInventoryChanged;
+            helper.Events.GameLoop.SaveLoaded += this.OnSaveLoaded;
+            helper.Events.GameLoop.UpdateTicked += this.OnUpdateTicked;
+            helper.Events.Player.InventoryChanged += this.OnInventoryChanged;
 
             helper.Content.AssetEditors.Add(new AssetEditor());
             SprinklerInitializer.Init(helper.Events);
             BlacksmithInitializer.Init(helper.Events);
 
-            InitColors();
+            this.InitColors();
 
             var harmony = HarmonyInstance.Create("stokastic.PrismaticTools");
             this.ApplyPatches(harmony);
@@ -108,7 +100,7 @@ namespace PrismaticTools {
             Item item;
             try {
                 item = farmer.Items[farmer.CurrentToolIndex];
-            }  catch (System.ArgumentOutOfRangeException) {
+            } catch (System.ArgumentOutOfRangeException) {
                 return;
             }
 
@@ -118,10 +110,10 @@ namespace PrismaticTools {
 
             foreach (var light in farmer.currentLocation.sharedLights.Values) {
                 if (light.Identifier == (int)farmer.UniqueMultiplayerID) {
-                    light.color.Value = colors[colorCycleIndex];
+                    light.color.Value = this.colors[this.colorCycleIndex];
                 }
             }
-            colorCycleIndex = (colorCycleIndex + 1) % colors.Count;
+            this.colorCycleIndex = (this.colorCycleIndex + 1) % this.colors.Count;
         }
 
         public override object GetApi() {
@@ -136,17 +128,17 @@ namespace PrismaticTools {
             }
         }
 
-        // adds lightsources to prismatic bar and sprinkler items in inventory
+        // adds light sources to prismatic bar and sprinkler items in inventory
         private void AddLightsToInventoryItems() {
             if (!Config.UseSprinklersAsLamps) {
                 return;
             }
             foreach (Item item in Game1.player.Items) {
-                if (item is Object) {
-                    if (item.ParentSheetIndex == PrismaticSprinklerItem.INDEX) {
-                        (item as Object).lightSource = new LightSource(LightSource.cauldronLight, new Vector2(0, 0), 2.0f, new Color(0.0f, 0.0f, 0.0f));
-                    } else if (item.ParentSheetIndex == PrismaticBarItem.INDEX) {
-                        (item as Object).lightSource = new LightSource(LightSource.cauldronLight, new Vector2(0, 0), 1.0f, colors[colorCycleIndex]);
+                if (item is Object obj) {
+                    if (obj.ParentSheetIndex == PrismaticSprinklerItem.INDEX) {
+                        obj.lightSource = new LightSource(LightSource.cauldronLight, new Vector2(0, 0), 2.0f, new Color(0.0f, 0.0f, 0.0f));
+                    } else if (obj.ParentSheetIndex == PrismaticBarItem.INDEX) {
+                        obj.lightSource = new LightSource(LightSource.cauldronLight, new Vector2(0, 0), 1.0f, this.colors[this.colorCycleIndex]);
                     }
                 }
             }
@@ -157,7 +149,7 @@ namespace PrismaticTools {
         /// <param name="e">The event arguments.</param>
         private void OnInventoryChanged(object sender, InventoryChangedEventArgs e) {
             if (e.IsLocalPlayer)
-                AddLightsToInventoryItems();
+                this.AddLightsToInventoryItems();
         }
 
         /// <summary>Raised after the player loads a save slot and the world is initialised.</summary>
@@ -171,13 +163,13 @@ namespace PrismaticTools {
                 } catch { }
             }
 
-            AddLightsToInventoryItems();
+            this.AddLightsToInventoryItems();
         }
 
         private void InitColors() {
             int n = 24;
-            for(int i=0; i<n; i++) {
-                colors.Add(ColorFromHSV(360.0 * i / n, 1.0, 1.0));
+            for (int i = 0; i < n; i++) {
+                this.colors.Add(this.ColorFromHSV(360.0 * i / n, 1.0, 1.0));
             }
         }
 
@@ -196,18 +188,20 @@ namespace PrismaticTools {
             q = 255 - q;
             t = 255 - t;
 
-            if (hi == 0)
-                return new Color(v, t, p);
-            else if (hi == 1)
-                return new Color(q, v, p);
-            else if (hi == 2)
-                return new Color(p, v, t);
-            else if (hi == 3)
-                return new Color(p, q, v);
-            else if (hi == 4)
-                return new Color(t, p, v);
-            else
-                return new Color(v, p, q);
+            switch (hi) {
+                case 0:
+                    return new Color(v, t, p);
+                case 1:
+                    return new Color(q, v, p);
+                case 2:
+                    return new Color(p, v, t);
+                case 3:
+                    return new Color(p, q, v);
+                case 4:
+                    return new Color(t, p, v);
+                default:
+                    return new Color(v, p, q);
+            }
         }
     }
 }

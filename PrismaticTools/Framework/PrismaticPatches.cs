@@ -1,10 +1,8 @@
-﻿using Harmony;
 using System.Collections.Generic;
-using StardewValley;
 using Microsoft.Xna.Framework;
-
-using StardewValley.TerrainFeatures;
 using Netcode;
+using StardewValley;
+using StardewValley.TerrainFeatures;
 using StardewValley.Tools;
 
 namespace PrismaticTools.Framework {
@@ -65,9 +63,9 @@ namespace PrismaticTools.Framework {
                 }
                 if (__instance.heldObject.Value == null & probe) {
                     if (object1.ParentSheetIndex == 74) {
-                            __instance.heldObject.Value = new Object();
-                            __result = true;
-                            return false;
+                        __instance.heldObject.Value = new Object();
+                        __result = true;
+                        return false;
                     }
                 }
             }
@@ -133,7 +131,7 @@ namespace PrismaticTools.Framework {
 
         public static void Pickaxe_DoFunction(ref Pickaxe __instance, GameLocation location, int x, int y, int power, Farmer who) {
             if (__instance.UpgradeLevel == 5) {
-                if (location.Objects.TryGetValue(new Vector2(x/64, y/64), out Object obj)) {
+                if (location.Objects.TryGetValue(new Vector2(x / 64, y / 64), out Object obj)) {
                     if (obj.Name == "Stone") {
                         obj.MinutesUntilReady = 0;
                     }

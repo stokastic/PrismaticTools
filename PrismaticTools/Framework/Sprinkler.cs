@@ -1,18 +1,16 @@
-﻿using Microsoft.Xna.Framework;
+using System.Collections.Generic;
+using Microsoft.Xna.Framework;
+using StardewModdingAPI.Events;
 using StardewValley;
 using StardewValley.TerrainFeatures;
-using StardewModdingAPI.Events;
-using System.Collections.Generic;
 using SObject = StardewValley.Object;
 
 namespace PrismaticTools.Framework {
-
     // searches map for any currently placed prismatic sprinklers and:
     //   - waters adjacent tiles
     //   - enables light sources
     //   - optionally makes them act as scarecrows
     public static class SprinklerInitializer {
-        
         public static void Init(IModEvents events) {
             events.GameLoop.DayStarted += OnDayStarted;
             events.GameLoop.SaveLoaded += OnSaveLoaded;
@@ -57,8 +55,7 @@ namespace PrismaticTools.Framework {
         /// <param name="location">The location containing the sprinkler.</param>
         /// <param name="tile">The sprinkler's tile coordinate within the location.</param>
         /// <param name="obj">The object to check.</param>
-        private static void TryEnablePrismaticSprinkler(GameLocation location, Vector2 tile, SObject obj)
-        {
+        private static void TryEnablePrismaticSprinkler(GameLocation location, Vector2 tile, SObject obj) {
             if (obj.ParentSheetIndex != PrismaticSprinklerItem.INDEX || !ModEntry.Config.UseSprinklersAsLamps)
                 return;
 
@@ -67,8 +64,7 @@ namespace PrismaticTools.Framework {
 
             // add light source
             int id = (int)tile.X * 4000 + (int)tile.Y;
-            if (!location.sharedLights.ContainsKey(id))
-            {
+            if (!location.sharedLights.ContainsKey(id)) {
                 obj.lightSource = new LightSource(4, tile * Game1.tileSize, 2.0f, Color.Black, id);
                 location.sharedLights.Add(id, obj.lightSource);
             }
@@ -108,4 +104,3 @@ namespace PrismaticTools.Framework {
         }
     }
 }
-
