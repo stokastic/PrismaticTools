@@ -171,78 +171,7 @@ namespace PrismaticTools {
                 } catch { }
             }
 
-            IndexCompatibilityFix();
             AddLightsToInventoryItems();
-        }
-
-        // used to resolve asset conflicts with other mods
-        private void IndexCompatibilityFix() {
-            var watch = System.Diagnostics.Stopwatch.StartNew();
-            foreach (GameLocation location in Game1.locations) {
-                // check fridge
-                if (location is FarmHouse farmhouse && farmhouse.fridge.Value is Chest fridge) {
-                        foreach (Item item in fridge.items) {
-                            if (item?.Name != null && item.Name.Contains("Prismatic")) {
-                                SwapIndex(item);
-                            }
-                        }
-                }
-
-                // check chests, signposts, furnaces, and placed sprinklers
-                foreach (Object obj in location.Objects.Values)
-                {
-                    switch (obj)
-                    {
-                        // chest
-                        case Chest chest:
-                            foreach (Item item in chest.items) {
-                                if (item?.Name != null && item.Name.Contains("Prismatic")) {
-                                    SwapIndex(item);
-                                }
-                            }
-                            break;
-
-                        // sign
-                        case Sign sign:
-                            SwapIndex(sign.displayItem.Value);
-                            break;
-
-                        default:
-                            // furnace
-                            if (obj.bigCraftable.Value && obj.Name == "Furnace") {
-                                SwapIndex(obj.heldObject.Value);
-                            }
-
-                            // prismatic bar/sprinkler
-                            else if (obj.ParentSheetIndex == PrismaticBarItem.OLD_INDEX || obj.ParentSheetIndex == PrismaticSprinklerItem.OLD_INDEX) {
-                                SwapIndex(obj);
-                            }
-                            break;
-                    }
-                }
-            }
-
-            foreach (Item item in Game1.player.Items) {
-                if (item != null && item.Name.Contains("Prismatic")) {
-                    SwapIndex(item);
-                }
-            }
-
-            watch.Stop();
-            Monitor.Log($"IndexCompatibility exec time: {watch.ElapsedMilliseconds} ms", LogLevel.Trace);
-        }
-
-        private void SwapIndex(Item item) {
-            if (item == null) {
-                return;
-            }
-
-            if (item.ParentSheetIndex == PrismaticBarItem.OLD_INDEX) {
-                item.ParentSheetIndex = PrismaticBarItem.INDEX;
-            }
-            if (item.ParentSheetIndex == PrismaticSprinklerItem.OLD_INDEX) {
-                item.ParentSheetIndex = PrismaticSprinklerItem.INDEX;
-            }
         }
 
         private void InitColors() {

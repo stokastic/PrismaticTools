@@ -4,7 +4,6 @@ namespace PrismaticTools.Framework {
 
     public class PrismaticSprinklerItem { 
         public const int INDEX = 1113;
-        public const int OLD_INDEX = 813;
         public const string NAME = "Prismatic Sprinkler";
         public const int PRICE = 2000;
         public const int EDIBILITY = -300;
@@ -16,7 +15,6 @@ namespace PrismaticTools.Framework {
 
     public class PrismaticBarItem : Object {
         public const int INDEX = 1112;
-        public const int OLD_INDEX = 812;
         public const string NAME = "Prismatic Bar";
         public const string DESCRIPTION = "A mystical ingot forged from legend itself.";
         public const int PRICE = 2500;
