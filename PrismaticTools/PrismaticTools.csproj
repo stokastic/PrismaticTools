@@ -79,6 +79,7 @@
   <ItemGroup>
     <None Include="i18n\default.json" />
     <None Include="i18n\de.json" />
+    <None Include="i18n\ko.json" />
     <None Include="i18n\zh.json" />
     <None Include="manifest.json" />
     <Content Include="Assets\prismaticBar.png">
