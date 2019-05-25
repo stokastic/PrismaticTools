@@ -247,7 +247,9 @@ namespace PrismaticTools.Framework {
                 return;
 
             // set name
-            obj.Name = "Prismatic Scarecrow Sprinkler";
+            obj.Name = ModEntry.Config.UseSprinklersAsScarecrows
+                ? "Prismatic Scarecrow Sprinkler"
+                : "Prismatic Sprinkler";
 
             // add light source
             if (ModEntry.Config.UseSprinklersAsLamps) {

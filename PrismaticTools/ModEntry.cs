@@ -156,13 +156,13 @@ namespace PrismaticTools {
         }
 
         /// <summary>Set scarecrow mode for sprinkler items.</summary>
-        private static void SetScarecrowModeForAllSprinklers() {
-            if (ModEntry.Config.UseSprinklersAsScarecrows) {
-                foreach (GameLocation location in Game1.locations) {
-                    foreach (Object obj in location.Objects.Values) {
-                        if (obj.ParentSheetIndex == PrismaticSprinklerItem.INDEX) {
-                            obj.Name = "Prismatic Scarecrow Sprinkler";
-                        }
+        private void SetScarecrowModeForAllSprinklers() {
+            foreach (GameLocation location in Game1.locations) {
+                foreach (Object obj in location.Objects.Values) {
+                    if (obj.ParentSheetIndex == PrismaticSprinklerItem.INDEX) {
+                        obj.Name = Config.UseSprinklersAsScarecrows
+                            ? "Prismatic Scarecrow Sprinkler"
+                            : "Prismatic Sprinkler";
                     }
                 }
             }
