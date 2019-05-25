@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.Xna.Framework;
 using Netcode;
 using StardewValley;
@@ -6,27 +7,22 @@ using StardewValley.TerrainFeatures;
 using StardewValley.Tools;
 
 namespace PrismaticTools.Framework {
+    [SuppressMessage("ReSharper", "InconsistentNaming")]
     internal static class PrismaticPatches {
         /*********
         ** Furnace patches
         *********/
         public static void Farmer_GetTallyOfObject(ref int __result, int index, bool bigCraftable) {
-            if (index == 382 && !bigCraftable) {
-                if (__result <= 0) {
-                    __result = 666666;
-                    return;
-                }
-            }
+            if (index == 382 && !bigCraftable && __result <= 0)
+                __result = 666666;
         }
 
         public static bool Object_PerformObjectDropInAction(ref Object __instance, ref bool __result, ref Item dropInItem, bool probe, Farmer who) {
-            if (!(dropInItem is Object))
+            if (!(dropInItem is Object object1))
                 return false;
-            Object object1 = dropInItem as Object;
 
-            if (object1.ParentSheetIndex != 74) {
+            if (object1.ParentSheetIndex != 74)
                 return true;
-            }
 
             if (__instance.name.Equals("Furnace")) {
                 if (who.IsLocalPlayer && who.getTallyOfObject(382, false) == 666666) {
@@ -35,23 +31,21 @@ namespace PrismaticTools.Framework {
                     return false;
                 }
                 if (__instance.heldObject.Value == null && !probe) {
-                    __instance.heldObject.Value = new Object(PrismaticBarItem.INDEX, 5, false, -1, 0);
+                    __instance.heldObject.Value = new Object(PrismaticBarItem.INDEX, 5);
                     __instance.MinutesUntilReady = 2400;
                     who.currentLocation.playSound("furnace");
-                    __instance.initializeLightSource(__instance.TileLocation, false);
+                    __instance.initializeLightSource(__instance.TileLocation);
                     __instance.showNextIndex.Value = true;
 
                     Multiplayer multiplayer = ModEntry.ModHelper.Reflection.GetField<Multiplayer>(typeof(Game1), "multiplayer").GetValue();
-                    multiplayer.broadcastSprites(who.currentLocation, new TemporaryAnimatedSprite[1] {
-                            new TemporaryAnimatedSprite(30, __instance.TileLocation * 64f + new Vector2(0.0f, -16f), Color.White, 4, false, 50f, 10, 64, (float) (((double) __instance.TileLocation.Y + 1.0) * 64.0 / 10000.0 + 9.99999974737875E-05), -1, 0) {
-                              alphaFade = 0.005f
-                            }
-                        });
+                    multiplayer.broadcastSprites(who.currentLocation, new TemporaryAnimatedSprite(30, __instance.TileLocation * 64f + new Vector2(0.0f, -16f), Color.White, 4, false, 50f, 10, 64, (float)((__instance.TileLocation.Y + 1.0) * 64.0 / 10000.0 + 9.99999974737875E-05)) {
+                        alphaFade = 0.005f
+                    });
                     for (int index = who.Items.Count - 1; index >= 0; --index) {
-                        if (who.Items[index] is Object && (who.Items[index] as Object).ParentSheetIndex == 382) {
+                        if (who.Items[index] is Object obj && obj.ParentSheetIndex == 382) {
                             --who.Items[index].Stack;
                             if (who.Items[index].Stack <= 0) {
-                                who.Items[index] = (Item)null;
+                                who.Items[index] = null;
                                 break;
                             }
                             break;
@@ -79,7 +73,7 @@ namespace PrismaticTools.Framework {
         public static bool Farm_AddCrows(ref Farm __instance) {
             int num1 = 0;
             foreach (KeyValuePair<Vector2, TerrainFeature> pair in __instance.terrainFeatures.Pairs) {
-                if (pair.Value is HoeDirt && (pair.Value as HoeDirt).crop != null)
+                if (pair.Value is HoeDirt dirt && dirt.crop != null)
                     ++num1;
             }
             List<Vector2> vector2List = new List<Vector2>();
@@ -93,19 +87,17 @@ namespace PrismaticTools.Framework {
                 if (Game1.random.NextDouble() < 1.0) {
                     for (int index2 = 0; index2 < 10; ++index2) {
                         Vector2 key = __instance.terrainFeatures.Pairs.ElementAt(Game1.random.Next(__instance.terrainFeatures.Count())).Key;
-                        if (__instance.terrainFeatures[key] is HoeDirt && (__instance.terrainFeatures[key] as HoeDirt).crop != null && ((__instance.terrainFeatures[key] as HoeDirt).crop.currentPhase.Value) > 1) {
+                        if (__instance.terrainFeatures[key] is HoeDirt dirt && dirt.crop?.currentPhase.Value > 1) {
                             bool flag = false;
                             foreach (Vector2 index3 in vector2List) {
-                                if ((double)Vector2.Distance(index3, key) < 9.0) {
+                                if (Vector2.Distance(index3, key) < 9.0) {
                                     flag = true;
                                     ++__instance.objects[index3].SpecialVariable;
                                     break;
                                 }
                             }
-                            if (!flag) {
-                                (__instance.terrainFeatures[key] as HoeDirt).crop = (Crop)null;
-                                break;
-                            }
+                            if (!flag)
+                                dirt.crop = null;
                             break;
                         }
                     }
@@ -154,10 +146,10 @@ namespace PrismaticTools.Framework {
                 int length = ModEntry.Config.PrismaticToolLength;
                 switch (who.FacingDirection) {
                     case 0: direction = new Vector2(0, -1); orth = new Vector2(1, 0); break;
-                    case 1: direction = new Vector2(1, 0);  orth = new Vector2(0, 1); break;
-                    case 2: direction = new Vector2(0, 1);  orth = new Vector2(-1, 0); break;
+                    case 1: direction = new Vector2(1, 0); orth = new Vector2(0, 1); break;
+                    case 2: direction = new Vector2(0, 1); orth = new Vector2(-1, 0); break;
                     case 3: direction = new Vector2(-1, 0); orth = new Vector2(0, -1); break;
-                    default: direction = new Vector2(0, 0); orth = new Vector2(0, 0); break;
+                    default: direction = Vector2.Zero; orth = Vector2.Zero; break;
                 }
                 for (int i = 0; i < length; i++) {
                     __result.Add(direction * i + tileLocation);

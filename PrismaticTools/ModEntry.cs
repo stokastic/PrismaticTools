@@ -136,9 +136,9 @@ namespace PrismaticTools {
             foreach (Item item in Game1.player.Items) {
                 if (item is Object obj) {
                     if (obj.ParentSheetIndex == PrismaticSprinklerItem.INDEX) {
-                        obj.lightSource = new LightSource(LightSource.cauldronLight, new Vector2(0, 0), 2.0f, new Color(0.0f, 0.0f, 0.0f));
+                        obj.lightSource = new LightSource(LightSource.cauldronLight, Vector2.Zero, 2.0f, new Color(0.0f, 0.0f, 0.0f));
                     } else if (obj.ParentSheetIndex == PrismaticBarItem.INDEX) {
-                        obj.lightSource = new LightSource(LightSource.cauldronLight, new Vector2(0, 0), 1.0f, this.colors[this.colorCycleIndex]);
+                        obj.lightSource = new LightSource(LightSource.cauldronLight, Vector2.Zero, 1.0f, this.colors[this.colorCycleIndex]);
                     }
                 }
             }
