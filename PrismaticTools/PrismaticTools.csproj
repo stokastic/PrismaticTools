@@ -71,7 +71,6 @@
     <Compile Include="Framework\PrismaticAPI.cs" />
     <Compile Include="Framework\PrismaticItems.cs" />
     <Compile Include="Framework\PrismaticPatches.cs" />
-    <Compile Include="Framework\Sprinkler.cs" />
     <Compile Include="ModConfig.cs" />
     <Compile Include="ModEntry.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

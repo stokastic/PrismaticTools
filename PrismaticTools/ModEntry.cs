@@ -32,7 +32,6 @@ namespace PrismaticTools {
             helper.Events.Player.InventoryChanged += this.OnInventoryChanged;
 
             helper.Content.AssetEditors.Add(new AssetEditor());
-            SprinklerInitializer.Init(helper.Events);
             BlacksmithInitializer.Init(helper.Events);
 
             this.InitColors();
@@ -56,6 +55,18 @@ namespace PrismaticTools {
             harmony.Patch(
                 original: AccessTools.Method(typeof(Farm), nameof(Farm.addCrows)),
                 prefix: new HarmonyMethod(typeof(PrismaticPatches), nameof(PrismaticPatches.Farm_AddCrows))
+            );
+            harmony.Patch(
+                original: AccessTools.Method(typeof(Object), nameof(Object.DayUpdate)),
+                prefix: new HarmonyMethod(typeof(PrismaticPatches), nameof(PrismaticPatches.Object_DayUpdating))
+            );
+            harmony.Patch(
+                original: AccessTools.Method(typeof(Object), nameof(Object.updateWhenCurrentLocation)),
+                prefix: new HarmonyMethod(typeof(PrismaticPatches), nameof(PrismaticPatches.Object_UpdatingWhenCurrentLocation))
+            );
+            harmony.Patch(
+                original: AccessTools.Method(typeof(Object), nameof(Object.placementAction)),
+                prefix: new HarmonyMethod(typeof(PrismaticPatches), nameof(PrismaticPatches.Object_OnPlacing))
             );
 
             // tools
@@ -128,7 +139,7 @@ namespace PrismaticTools {
             }
         }
 
-        // adds light sources to prismatic bar and sprinkler items in inventory
+        /// <summary>Adds light sources to prismatic bar and sprinkler items in inventory.</summary>
         private void AddLightsToInventoryItems() {
             if (!Config.UseSprinklersAsLamps) {
                 return;
@@ -139,6 +150,19 @@ namespace PrismaticTools {
                         obj.lightSource = new LightSource(LightSource.cauldronLight, Vector2.Zero, 2.0f, new Color(0.0f, 0.0f, 0.0f));
                     } else if (obj.ParentSheetIndex == PrismaticBarItem.INDEX) {
                         obj.lightSource = new LightSource(LightSource.cauldronLight, Vector2.Zero, 1.0f, this.colors[this.colorCycleIndex]);
+                    }
+                }
+            }
+        }
+
+        /// <summary>Set scarecrow mode for sprinkler items.</summary>
+        private static void SetScarecrowModeForAllSprinklers() {
+            if (ModEntry.Config.UseSprinklersAsScarecrows) {
+                foreach (GameLocation location in Game1.locations) {
+                    foreach (Object obj in location.Objects.Values) {
+                        if (obj.ParentSheetIndex == PrismaticSprinklerItem.INDEX) {
+                            obj.Name = "Prismatic Scarecrow Sprinkler";
+                        }
                     }
                 }
             }
@@ -164,6 +188,7 @@ namespace PrismaticTools {
             }
 
             this.AddLightsToInventoryItems();
+            this.SetScarecrowModeForAllSprinklers();
         }
 
         private void InitColors() {

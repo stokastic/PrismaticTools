@@ -5,20 +5,24 @@ using Netcode;
 using StardewValley;
 using StardewValley.TerrainFeatures;
 using StardewValley.Tools;
+using SObject = StardewValley.Object;
 
 namespace PrismaticTools.Framework {
     [SuppressMessage("ReSharper", "InconsistentNaming")]
     internal static class PrismaticPatches {
         /*********
-        ** Furnace patches
+        ** Public methods
         *********/
+        /****
+        ** Furnace patches
+        ****/
         public static void Farmer_GetTallyOfObject(ref int __result, int index, bool bigCraftable) {
             if (index == 382 && !bigCraftable && __result <= 0)
                 __result = 666666;
         }
 
-        public static bool Object_PerformObjectDropInAction(ref Object __instance, ref bool __result, ref Item dropInItem, bool probe, Farmer who) {
-            if (!(dropInItem is Object object1))
+        public static bool Object_PerformObjectDropInAction(ref SObject __instance, ref bool __result, ref Item dropInItem, bool probe, Farmer who) {
+            if (!(dropInItem is SObject object1))
                 return false;
 
             if (object1.ParentSheetIndex != 74)
@@ -31,7 +35,7 @@ namespace PrismaticTools.Framework {
                     return false;
                 }
                 if (__instance.heldObject.Value == null && !probe) {
-                    __instance.heldObject.Value = new Object(PrismaticBarItem.INDEX, 5);
+                    __instance.heldObject.Value = new SObject(PrismaticBarItem.INDEX, 5);
                     __instance.MinutesUntilReady = 2400;
                     who.currentLocation.playSound("furnace");
                     __instance.initializeLightSource(__instance.TileLocation);
@@ -42,7 +46,7 @@ namespace PrismaticTools.Framework {
                         alphaFade = 0.005f
                     });
                     for (int index = who.Items.Count - 1; index >= 0; --index) {
-                        if (who.Items[index] is Object obj && obj.ParentSheetIndex == 382) {
+                        if (who.Items[index] is SObject obj && obj.ParentSheetIndex == 382) {
                             --who.Items[index].Stack;
                             if (who.Items[index].Stack <= 0) {
                                 who.Items[index] = null;
@@ -57,7 +61,7 @@ namespace PrismaticTools.Framework {
                 }
                 if (__instance.heldObject.Value == null & probe) {
                     if (object1.ParentSheetIndex == 74) {
-                        __instance.heldObject.Value = new Object();
+                        __instance.heldObject.Value = new SObject();
                         __result = true;
                         return false;
                     }
@@ -67,9 +71,9 @@ namespace PrismaticTools.Framework {
             return false;
         }
 
-        /*********
+        /****
         ** Sprinkler patches
-        *********/
+        ****/
         public static bool Farm_AddCrows(ref Farm __instance) {
             int num1 = 0;
             foreach (KeyValuePair<Vector2, TerrainFeature> pair in __instance.terrainFeatures.Pairs) {
@@ -77,7 +81,7 @@ namespace PrismaticTools.Framework {
                     ++num1;
             }
             List<Vector2> vector2List = new List<Vector2>();
-            foreach (KeyValuePair<Vector2, StardewValley.Object> pair in __instance.objects.Pairs) {
+            foreach (KeyValuePair<Vector2, SObject> pair in __instance.objects.Pairs) {
                 if (pair.Value.Name.Contains("arecrow")) {
                     vector2List.Add(pair.Key);
                 }
@@ -106,9 +110,54 @@ namespace PrismaticTools.Framework {
             return false;
         }
 
-        /*********
+        public static bool Object_DayUpdating(ref SObject __instance, GameLocation location) {
+            var obj = __instance;
+
+            // water tiles covered by sprinkler
+            if (obj.ParentSheetIndex == PrismaticSprinklerItem.INDEX) {
+                location.TemporarySprites.Add(new TemporaryAnimatedSprite("TileSheets\\animations", new Rectangle(0, 2176, 320, 320), 60f, 4, 100, obj.TileLocation * 64 + new Vector2(-192, -208), false, false) {
+                    color = Color.White * 0.4f,
+                    scale = 7f / 5f,
+                    delayBeforeAnimationStart = 0,
+                    id = obj.TileLocation.X * 4000f + obj.TileLocation.Y
+                });
+
+                for (int x = (int)obj.TileLocation.X - ModEntry.Config.SprinklerRange; x <= obj.TileLocation.X + ModEntry.Config.SprinklerRange; ++x) {
+                    for (int y = (int)obj.TileLocation.Y - ModEntry.Config.SprinklerRange; y <= obj.TileLocation.Y + ModEntry.Config.SprinklerRange; ++y) {
+                        Vector2 tile = new Vector2(x, y);
+
+                        // water dirt
+                        if (location.terrainFeatures.TryGetValue(tile, out TerrainFeature terrain) && terrain is HoeDirt dirt)
+                            dirt.state.Value = 1;
+                    }
+                }
+            }
+            return true;
+        }
+
+        public static bool Object_UpdatingWhenCurrentLocation(ref SObject __instance, GameTime time, GameLocation environment) {
+            var obj = __instance;
+
+            // enable sprinkler scarecrow/light
+            if (obj.ParentSheetIndex == PrismaticSprinklerItem.INDEX)
+                TryEnablePrismaticSprinkler(environment, obj.TileLocation, obj);
+
+            return true;
+        }
+
+        public static bool Object_OnPlacing(ref SObject __instance, GameLocation location, int x, int y) {
+            var obj = __instance;
+
+            // enable sprinkler scarecrow/light
+            if (obj.ParentSheetIndex == PrismaticSprinklerItem.INDEX)
+                TryEnablePrismaticSprinkler(location, new Vector2(x, y), obj);
+
+            return true;
+        }
+
+        /****
         ** Tool patches
-        *********/
+        ****/
         public static void Tree_PerformToolAction(ref Tree __instance, Tool t, int explosion) {
             if (t is Axe axe && axe.UpgradeLevel == 5 && explosion <= 0 && ModEntry.ModHelper.Reflection.GetField<NetFloat>(__instance, "health").GetValue() > -99f) {
                 __instance.health.Value = 0.0f;
@@ -123,7 +172,7 @@ namespace PrismaticTools.Framework {
 
         public static void Pickaxe_DoFunction(ref Pickaxe __instance, GameLocation location, int x, int y, int power, Farmer who) {
             if (__instance.UpgradeLevel == 5) {
-                if (location.Objects.TryGetValue(new Vector2(x / 64, y / 64), out Object obj)) {
+                if (location.Objects.TryGetValue(new Vector2(x / 64, y / 64), out SObject obj)) {
                     if (obj.Name == "Stone") {
                         obj.MinutesUntilReady = 0;
                     }
@@ -183,6 +232,31 @@ namespace PrismaticTools.Framework {
                 return false;
             }
             return true;
+        }
+
+
+        /*********
+        ** Private methods
+        *********/
+        /// <summary>Try to add the light source for a prismatic sprinkler, if applicable.</summary>
+        /// <param name="location">The location containing the sprinkler.</param>
+        /// <param name="tile">The sprinkler's tile coordinate within the location.</param>
+        /// <param name="obj">The object to check.</param>
+        private static void TryEnablePrismaticSprinkler(GameLocation location, Vector2 tile, SObject obj) {
+            if (obj.ParentSheetIndex != PrismaticSprinklerItem.INDEX)
+                return;
+
+            // set name
+            obj.Name = "Prismatic Scarecrow Sprinkler";
+
+            // add light source
+            if (ModEntry.Config.UseSprinklersAsLamps) {
+                int id = (int)tile.X * 4000 + (int)tile.Y;
+                if (!location.sharedLights.ContainsKey(id)) {
+                    obj.lightSource = new LightSource(4, tile * Game1.tileSize, 2.0f, Color.Black, id);
+                    location.sharedLights.Add(id, obj.lightSource);
+                }
+            }
         }
     }
 }
