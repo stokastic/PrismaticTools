@@ -23,7 +23,7 @@ namespace PrismaticTools {
 
             Config = this.Helper.ReadConfig<ModConfig>();
 
-            ToolsTexture = ModHelper.Content.Load<Texture2D>("Assets/tools.png");
+            ToolsTexture = ModHelper.Content.Load<Texture2D>("assets/tools.png");
 
             helper.ConsoleCommands.Add("ptools", "Upgrade all tools to prismatic", this.UpgradeTools);
 

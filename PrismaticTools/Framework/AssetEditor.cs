@@ -23,8 +23,8 @@ namespace PrismaticTools.Framework {
         public void Edit<T>(IAssetData asset) {
 
             if (asset.AssetNameEquals("Maps/springobjects")) {
-                Texture2D bar = ModEntry.ModHelper.Content.Load<Texture2D>("Assets/prismaticBar.png");
-                Texture2D sprinkler = ModEntry.ModHelper.Content.Load<Texture2D>("Assets/prismaticSprinkler.png");
+                Texture2D bar = ModEntry.ModHelper.Content.Load<Texture2D>("assets/prismaticBar.png");
+                Texture2D sprinkler = ModEntry.ModHelper.Content.Load<Texture2D>("assets/prismaticSprinkler.png");
                 Texture2D old = asset.AsImage().Data;
                 asset.ReplaceWith(new Texture2D(Game1.graphics.GraphicsDevice, old.Width, System.Math.Max(old.Height, 1200 / 24 * 16)));
                 asset.AsImage().PatchImage(old);

@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.28803.202
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PrismaticTools", "PrismaticTools\PrismaticTools.csproj", "{C24166EE-9341-4760-86B3-F89B326F3FC0}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "root", "root", "{7EF5E22B-2A2D-4B4A-9903-6B118B874F64}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
@@ -13,22 +11,18 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "root", "root", "{7EF5E22B-2
 		README.md = README.md
 	EndProjectSection
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PrismaticTools", "PrismaticTools\PrismaticTools.csproj", "{7A6634BD-1FF7-4711-99B6-FD503ED9B5C0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		Debug|Any CPU = Debug|Any CPU
 		Debug|x86 = Debug|x86
-		Release|Any CPU = Release|Any CPU
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{C24166EE-9341-4760-86B3-F89B326F3FC0}.Debug|Any CPU.ActiveCfg = Debug|x86
-		{C24166EE-9341-4760-86B3-F89B326F3FC0}.Debug|Any CPU.Build.0 = Debug|x86
-		{C24166EE-9341-4760-86B3-F89B326F3FC0}.Debug|x86.ActiveCfg = Debug|x86
-		{C24166EE-9341-4760-86B3-F89B326F3FC0}.Debug|x86.Build.0 = Debug|x86
-		{C24166EE-9341-4760-86B3-F89B326F3FC0}.Release|Any CPU.ActiveCfg = Release|x86
-		{C24166EE-9341-4760-86B3-F89B326F3FC0}.Release|Any CPU.Build.0 = Release|x86
-		{C24166EE-9341-4760-86B3-F89B326F3FC0}.Release|x86.ActiveCfg = Release|x86
-		{C24166EE-9341-4760-86B3-F89B326F3FC0}.Release|x86.Build.0 = Release|x86
+		{7A6634BD-1FF7-4711-99B6-FD503ED9B5C0}.Debug|x86.ActiveCfg = Debug|x86
+		{7A6634BD-1FF7-4711-99B6-FD503ED9B5C0}.Debug|x86.Build.0 = Debug|x86
+		{7A6634BD-1FF7-4711-99B6-FD503ED9B5C0}.Release|x86.ActiveCfg = Release|x86
+		{7A6634BD-1FF7-4711-99B6-FD503ED9B5C0}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
