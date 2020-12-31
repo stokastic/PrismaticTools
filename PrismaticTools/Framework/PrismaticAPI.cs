@@ -1,5 +1,5 @@
-﻿using Microsoft.Xna.Framework;
 using System.Collections.Generic;
+using Microsoft.Xna.Framework;
 
 namespace PrismaticTools.Framework {
     public class PrismaticAPI {
@@ -9,10 +9,9 @@ namespace PrismaticTools.Framework {
         public bool ArePrismaticSprinklersScarecrows { get; } = ModEntry.Config.UseSprinklersAsScarecrows;
 
         public IEnumerable<Vector2> GetSprinklerCoverage(Vector2 origin) {
-            for (int x = -SprinklerRange; x <= SprinklerRange; x++) {
-                for (int y = -SprinklerRange; y <= SprinklerRange; y++) {
+            for (int x = -this.SprinklerRange; x <= this.SprinklerRange; x++) {
+                for (int y = -this.SprinklerRange; y <= this.SprinklerRange; y++)
                     yield return new Vector2(x, y) + origin;
-                }
             }
         }
     }
