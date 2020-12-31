@@ -31,8 +31,8 @@ namespace PrismaticTools.Framework {
             Tool toolFromName4 = who.getToolFromName("Hoe");
             Tool tool;
 
-            List<Item> forSale = ModEntry.ModHelper.Reflection.GetField<List<Item>>(menu, "forSale").GetValue();
-            Dictionary<Item, int[]> stock = ModEntry.ModHelper.Reflection.GetField<Dictionary<Item, int[]>>(menu, "itemPriceAndStock").GetValue();
+            List<ISalable> forSale = menu.forSale;
+            Dictionary<ISalable, int[]> stock = menu.itemPriceAndStock;
 
             if (toolFromName1 != null && toolFromName1.UpgradeLevel == 4) {
                 tool = new Axe { UpgradeLevel = 5 };
