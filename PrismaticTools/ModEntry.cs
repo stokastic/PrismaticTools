@@ -57,8 +57,12 @@ namespace PrismaticTools {
                 prefix: new HarmonyMethod(typeof(PrismaticPatches), nameof(PrismaticPatches.Farm_AddCrows))
             );
             harmony.Patch(
-                original: AccessTools.Method(typeof(Object), nameof(Object.DayUpdate)),
-                prefix: new HarmonyMethod(typeof(PrismaticPatches), nameof(PrismaticPatches.Object_DayUpdating))
+                original: AccessTools.Method(typeof(Object), nameof(Object.IsSprinkler)),
+                postfix: new HarmonyMethod(typeof(PrismaticPatches), nameof(PrismaticPatches.After_Object_IsSprinkler))
+            );
+            harmony.Patch(
+                original: AccessTools.Method(typeof(Object), nameof(Object.GetBaseRadiusForSprinkler)),
+                postfix: new HarmonyMethod(typeof(PrismaticPatches), nameof(PrismaticPatches.After_Object_GetBaseRadiusForSprinkler))
             );
             harmony.Patch(
                 original: AccessTools.Method(typeof(Object), nameof(Object.updateWhenCurrentLocation)),

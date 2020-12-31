@@ -110,29 +110,14 @@ namespace PrismaticTools.Framework {
             return false;
         }
 
-        public static bool Object_DayUpdating(ref SObject __instance, GameLocation location) {
-            var obj = __instance;
+        public static void After_Object_IsSprinkler(ref SObject __instance, ref bool __result) {
+            if (__instance.ParentSheetIndex == PrismaticSprinklerItem.INDEX)
+                __result = true;
+        }
 
-            // water tiles covered by sprinkler
-            if (obj.ParentSheetIndex == PrismaticSprinklerItem.INDEX) {
-                location.TemporarySprites.Add(new TemporaryAnimatedSprite("TileSheets\\animations", new Rectangle(0, 2176, 320, 320), 60f, 4, 100, obj.TileLocation * 64 + new Vector2(-192, -208), false, false) {
-                    color = Color.White * 0.4f,
-                    scale = 7f / 5f,
-                    delayBeforeAnimationStart = 0,
-                    id = obj.TileLocation.X * 4000f + obj.TileLocation.Y
-                });
-
-                for (int x = (int)obj.TileLocation.X - ModEntry.Config.SprinklerRange; x <= obj.TileLocation.X + ModEntry.Config.SprinklerRange; ++x) {
-                    for (int y = (int)obj.TileLocation.Y - ModEntry.Config.SprinklerRange; y <= obj.TileLocation.Y + ModEntry.Config.SprinklerRange; ++y) {
-                        Vector2 tile = new Vector2(x, y);
-
-                        // water dirt
-                        if (location.terrainFeatures.TryGetValue(tile, out TerrainFeature terrain) && terrain is HoeDirt dirt)
-                            dirt.state.Value = 1;
-                    }
-                }
-            }
-            return true;
+        public static void After_Object_GetBaseRadiusForSprinkler(ref SObject __instance, ref int __result) {
+            if (__instance.ParentSheetIndex == PrismaticSprinklerItem.INDEX)
+                __result = ModEntry.Config.SprinklerRange;
         }
 
         public static bool Object_UpdatingWhenCurrentLocation(ref SObject __instance, GameTime time, GameLocation environment) {
