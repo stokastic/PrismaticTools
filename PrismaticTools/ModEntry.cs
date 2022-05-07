@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using Harmony;
+using HarmonyLib;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using PrismaticTools.Framework;
@@ -17,30 +17,32 @@ namespace PrismaticTools {
 
         private int colorCycleIndex;
         private readonly List<Color> colors = new List<Color>();
+        private AssetEditor AssetEditor;
 
         public override void Entry(IModHelper helper) {
             ModHelper = helper;
+            this.AssetEditor = new AssetEditor();
 
             Config = this.Helper.ReadConfig<ModConfig>();
 
-            ToolsTexture = ModHelper.Content.Load<Texture2D>("assets/tools.png");
+            ToolsTexture = ModHelper.ModContent.Load<Texture2D>("assets/tools.png");
 
             helper.ConsoleCommands.Add("ptools", "Upgrade all tools to prismatic", this.UpgradeTools);
 
             helper.Events.GameLoop.SaveLoaded += this.OnSaveLoaded;
             helper.Events.GameLoop.UpdateTicked += this.OnUpdateTicked;
             helper.Events.Player.InventoryChanged += this.OnInventoryChanged;
+            helper.Events.Content.AssetRequested += this.OnAssetRequested;
 
-            helper.Content.AssetEditors.Add(new AssetEditor());
             BlacksmithInitializer.Init(helper.Events);
 
             this.InitColors();
 
-            var harmony = HarmonyInstance.Create("stokastic.PrismaticTools");
+            var harmony = new Harmony("stokastic.PrismaticTools");
             this.ApplyPatches(harmony);
         }
 
-        private void ApplyPatches(HarmonyInstance harmony) {
+        private void ApplyPatches(Harmony harmony) {
             // furnaces
             harmony.Patch(
                 original: AccessTools.Method(typeof(Farmer), nameof(Farmer.getTallyOfObject)),
@@ -193,6 +195,13 @@ namespace PrismaticTools {
 
             this.AddLightsToInventoryItems();
             this.SetScarecrowModeForAllSprinklers();
+        }
+
+        /// <summary>Raised when an asset is being requested from the content pipeline.</summary>
+        /// <param name="sender">The event sender.</param>
+        /// <param name="e">The event arguments.</param>
+        private void OnAssetRequested(object sender, AssetRequestedEventArgs e) {
+            this.AssetEditor.OnAssetRequested(e);
         }
 
         private void InitColors() {
