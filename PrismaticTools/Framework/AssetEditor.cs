@@ -3,7 +3,6 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
-using StardewValley;
 
 namespace PrismaticTools.Framework {
     public class AssetEditor {
@@ -21,7 +20,7 @@ namespace PrismaticTools.Framework {
                     Texture2D bar = ModEntry.ModHelper.ModContent.Load<Texture2D>("assets/prismaticBar.png");
                     Texture2D sprinkler = ModEntry.ModHelper.ModContent.Load<Texture2D>("assets/prismaticSprinkler.png");
 
-                    asset.ReplaceWith(new Texture2D(Game1.graphics.GraphicsDevice, editor.Data.Width, System.Math.Max(editor.Data.Height, 1200 / 24 * 16)));
+                    editor.ExtendImage(minWidth: editor.Data.Width, minHeight: 1200 / 24 * 16);
                     editor.PatchImage(bar, targetArea: this.GetRectangle(PrismaticBarItem.INDEX));
                     editor.PatchImage(sprinkler, targetArea: this.GetRectangle(PrismaticSprinklerItem.INDEX));
                 });
