@@ -7,10 +7,10 @@ using StardewValley;
 
 namespace PrismaticTools.Framework {
     public class AssetEditor {
-        private readonly string barName = ModEntry.ModHelper.Translation.Get("prismaticBar.name");
-        private readonly string barDesc = ModEntry.ModHelper.Translation.Get("prismaticBar.description");
-        private readonly string sprinklerName = ModEntry.ModHelper.Translation.Get("prismaticSprinkler.name");
-        private readonly string sprinklerDesc = ModEntry.ModHelper.Translation.Get("prismaticSprinkler.description");
+        private string barName => ModEntry.ModHelper.Translation.Get("prismaticBar.name");
+        private string barDesc => ModEntry.ModHelper.Translation.Get("prismaticBar.description");
+        private string sprinklerName => ModEntry.ModHelper.Translation.Get("prismaticSprinkler.name");
+        private string sprinklerDesc => ModEntry.ModHelper.Translation.Get("prismaticSprinkler.description");
 
         public void OnAssetRequested(AssetRequestedEventArgs e) {
             if (e.NameWithoutLocale.IsEquivalentTo("Maps/springobjects")) {
