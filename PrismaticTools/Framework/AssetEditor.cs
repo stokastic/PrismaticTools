@@ -48,7 +48,7 @@ namespace PrismaticTools.Framework {
                 });
             } else if (e.NameWithoutLocale.IsEquivalentTo("TileSheets/tools")) {
                 e.Edit(asset => {
-                    asset.AsImage().PatchImage(ModEntry.ToolsTexture, null, null, PatchMode.Overlay);
+                    asset.AsImage().PatchImage(ModEntry.ToolsTexture, patchMode: PatchMode.Overlay);
                 });
             }
         }
